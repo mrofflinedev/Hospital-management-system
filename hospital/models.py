@@ -112,3 +112,21 @@ class LabRequest(models.Model):
 
     def __str__(self):
         return f"{self.test.name} for {self.appointment.patient} ({self.get_status_display()})"
+class Bill(models.Model):
+    appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE, related_name='bill')
+    consultation_fee = models.DecimalField(max_digits=10, decimal_places=2)
+    medication_charges = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    is_paid = models.BooleanField(default=False)
+    mpesa_receipt_number = models.CharField(max_length=50, blank=True, null=True)
+    mpesa_checkout_id = models.CharField(max_length=100, blank=True, null=True)
+    mpesa_phone = models.CharField(max_length=15, blank=True, null=True)
+    generated_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        self.total_amount = self.consultation_fee + self.medication_charges
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        status = "Paid" if self.is_paid else "Unpaid"
+        return f"Bill #{self.id} - {self.appointment.patient} ({status})"

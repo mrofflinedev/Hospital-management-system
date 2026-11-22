@@ -1,0 +1,66 @@
+import base64
+from datetime import datetime
+import requests
+from django.conf import settings
+
+
+def format_kenyan_phone(phone):
+    phone = str(phone).strip().replace('+', '').replace(' ', '')
+    if phone.startswith('0'):
+        return '254' + phone[1:]
+    if phone.startswith('7') or phone.startswith('1'):
+        return '254' + phone
+    return phone
+
+
+def get_mpesa_access_token():
+    base_url = (
+        'https://safaricom.co.ke'
+        if settings.MPESA_ENVIRONMENT == 'sandbox'
+        else 'https://safaricom.co.ke'
+    )
+    url = f"{base_url}/oauth/v1/generate?grant_type=client_credentials"
+    response = requests.get(
+        url,
+        auth=(settings.MPESA_CONSUMER_KEY, settings.MPESA_CONSUMER_SECRET),
+        timeout=15,
+    )
+    response.raise_for_status()
+    return response.json().get('access_token')
+
+
+def trigger_stk_push(phone_number, amount, account_reference, transaction_desc):
+    access_token = get_mpesa_access_token()
+    base_url = (
+        'https://safaricom.co.ke'
+        if settings.MPESA_ENVIRONMENT == 'sandbox'
+        else 'https://safaricom.co.ke'
+    )
+    stk_url = f"{base_url}/mpesa/stkpush/v1/processrequest"
+
+    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+    raw_password = f"{settings.MPESA_SHORTCODE}{settings.MPESA_PASSKEY}{timestamp}"
+    password = base64.b64encode(raw_password.encode()).decode('utf-8')
+    formatted_phone = format_kenyan_phone(phone_number)
+
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'application/json',
+    }
+
+    payload = {
+        'BusinessShortCode': settings.MPESA_SHORTCODE,
+        'Password': password,
+        'Timestamp': timestamp,
+        'TransactionType': 'CustomerPayBillOnline',
+        'Amount': int(round(float(amount))),
+        'PartyA': formatted_phone,
+        'PartyB': settings.MPESA_SHORTCODE,
+        'PhoneNumber': formatted_phone,
+        'CallBackURL': settings.MPESA_CALLBACK_URL,
+        'AccountReference': account_reference,
+        'TransactionDesc': transaction_desc,
+    }
+
+    response = requests.post(stk_url, json=payload, headers=headers, timeout=20)
+    return response.json(), formatted_phone

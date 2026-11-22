@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Pay via M-Pesa | AYUNDA HEALTH CENTER{% endblock %}
+
+{% block content %}
+<div class="card form-card">
+    <div class="card-header">
+        <h2>Lipa Na M-Pesa — Invoice #AHC-{{ bill.id|stringformat:"04d" }}</h2>
+    </div>
+    <p><strong>Patient:</strong> {{ bill.appointment.patient }}</p>
+    <p><strong>Amount to Pay:</strong> <span style="font-size: 1.2rem; font-weight: 800; color: #15803d;">KES {{ bill.total_amount }}</span></p>
+    <hr style="margin: 1rem 0; border: 0; border-top: 1px solid #e2e8f0;">
+
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            <label for="phone_number">Safaricom M-Pesa Phone Number:</label>
+            <input type="text" name="phone_number" id="phone_number" value="{{ default_phone }}" placeholder="e.g. 0796943289 or +254796943289" required>
+            <span class="helptext">An M-Pesa PIN prompt will be sent immediately to this phone.</span>
+        </p>
+        <button type="submit" class="btn btn-success">Send M-Pesa PIN Prompt</button>
+        <a href="{% url 'print_invoice' bill.id %}" class="btn btn-outline">Cancel</a>
+    </form>
+</div>
+{% endblock %}

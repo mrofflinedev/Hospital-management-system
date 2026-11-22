@@ -1,4 +1,5 @@
 from django.urls import path
+from . import mpesa_views
 from . import views
 
 urlpatterns = [
@@ -23,5 +24,8 @@ urlpatterns = [
     # Laboratory Diagnostics
     path('laboratory/catalog/', views.lab_catalog, name='lab_catalog'),
     path('laboratory/appointment/<int:appointment_id>/', views.manage_appointment_labs, name='manage_appointment_labs'),
+    # M-Pesa Daraja Integration
+    path('mpesa/pay/<int:bill_id>/', mpesa_views.initiate_mpesa_payment, name='initiate_mpesa_payment'),
+    path('mpesa/callback/', mpesa_views.mpesa_callback, name='mpesa_callback'),
 
 ]
