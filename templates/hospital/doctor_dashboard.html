@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Doctor Dashboard | AYUNDA HEALTH CENTER{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Dr. {{ doctor.user.get_full_name|default:doctor.user.username }} ({{ doctor.specialization }})</h2>
+        <span class="badge badge-completed">Active Medical Staff</span>
+    </div>
+    <p><strong>License #:</strong> {{ doctor.license_number }} | <strong>Consultation Fee:</strong> KES {{ doctor.consultation_fee }}</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3>Patient Appointments & Clinical Records</h3>
+    </div>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Patient</th>
+                    <th>Date & Time</th>
+                    <th>Symptoms</th>
+                    <th>Status</th>
+                    <th>Clinical Record (Dx / Rx)</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appt in appointments %}
+                <tr>
+                    <td>{{ appt.patient }}</td>
+                    <td>{{ appt.appointment_date }} at {{ appt.time_slot }}</td>
+                    <td>{{ appt.symptoms }}</td>
+                    <td><span class="badge badge-{{ appt.status|lower }}">{{ appt.get_status_display }}</span></td>
+                    <td>
+                        {% if appt.medical_record %}
+                            <strong>Dx:</strong> {{ appt.medical_record.diagnosis }}<br>
+                            <strong>Rx:</strong> {{ appt.medical_record.prescription }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if appt.status == 'PENDING' %}
+                            <a href="{% url 'update_appointment_status' appt.id 'APPROVED' %}" class="btn btn-success btn-sm">Approve</a>
+                            <a href="{% url 'update_appointment_status' appt.id 'CANCELLED' %}" class="btn btn-danger btn-sm">Cancel</a>
+                        {% elif appt.status == 'APPROVED' %}
+                            <a href="{% url 'complete_consultation' appt.id %}" class="btn btn-teal btn-sm">Consult & Prescribe</a>
+                        {% elif appt.status == 'COMPLETED' %}
+                            <a href="{% url 'dispense_medicine' appt.id %}" class="btn btn-success btn-sm">Dispense Meds</a>
+                        {% else %}
+                            <span>—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6">No appointments assigned to you yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Select Login Portal | AYUNDA HEALTH CENTER{% endblock %}
+
+{% block content %}
+<div class="section-heading" style="text-align: center; margin-bottom: 2rem;">
+    <span class="sub-label">AYUNDA HEALTH CENTER</span>
+    <h2>Select Your Login Portal</h2>
+    <p style="color: #64748b;">Choose the appropriate portal below to sign in to your account.</p>
+</div>
+
+<div class="dept-grid">
+    <div class="dept-card" style="text-align: center;">
+        <h3>Patient Portal</h3>
+        <p style="margin: 0.8rem 0 1.4rem;">Book appointments with doctors and view your billing status.</p>
+        <a href="{% url 'patient_login' %}" class="btn btn-teal">Patient Login</a>
+        <div style="margin-top: 0.8rem;">
+            <a href="{% url 'register_patient' %}" style="font-size: 0.88rem; color: #0d9488; font-weight: 600;">New Patient? Register Here</a>
+        </div>
+    </div>
+
+    <div class="dept-card" style="text-align: center;">
+        <h3>Doctor / Medical Staff</h3>
+        <p style="margin: 0.8rem 0 1.4rem;">Manage scheduled consultations, diagnoses, and prescriptions.</p>
+        <a href="{% url 'doctor_login' %}" class="btn btn-navy">Doctor Login</a>
+    </div>
+
+    <div class="dept-card" style="text-align: center;">
+        <h3>Hospital Administration</h3>
+        <p style="margin: 0.8rem 0 1.4rem;">Add doctors, approve patient registrations, and manage billing.</p>
+        <a href="{% url 'admin_login' %}" class="btn btn-outline">Admin Login</a>
+    </div>
+</div>
+{% endblock %}

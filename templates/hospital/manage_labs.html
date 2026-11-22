@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Patient Lab Tests | AYUNDA HEALTH CENTER{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Laboratory Requests — {{ appointment.patient }}</h2>
+        <a href="{% url 'dashboard_redirect' %}" class="btn btn-navy btn-sm">Back to Dashboard</a>
+    </div>
+    <p><strong>Attending Doctor:</strong> {{ appointment.doctor }} | <strong>Visit Date:</strong> {{ appointment.appointment_date }}</p>
+</div>
+
+<div class="card form-card">
+    <div class="card-header"><h3>Order New Lab Test</h3></div>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="request_test">
+        {{ req_form.as_p }}
+        <button type="submit" class="btn btn-teal">Order Test</button>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-header"><h3>Ordered Tests & Clinical Results</h3></div>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr><th>Test Name</th><th>Cost</th><th>Status</th><th>Clinical Findings / Enter Results</th></tr>
+            </thead>
+            <tbody>
+                {% for req in lab_requests %}
+                <tr>
+                    <td><strong>{{ req.test.name }}</strong></td>
+                    <td>KES {{ req.test.cost }}</td>
+                    <td>
+                        {% if req.status == 'COMPLETED' %}
+                            <span class="badge badge-completed">Completed</span>
+                        {% else %}
+                            <span class="badge badge-pending">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if req.status == 'COMPLETED' %}
+                            <p>{{ req.result_notes }}</p>
+                            <small style="color:#64748b;">Completed: {{ req.completed_at|date:"M d, Y H:i" }}</small>
+                        {% else %}
+                            <form method="post" style="display:flex; gap:0.5rem; align-items:center;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="submit_result">
+                                <input type="hidden" name="lab_request_id" value="{{ req.id }}">
+                                <input type="text" name="result_notes" placeholder="Enter test result..." required style="padding:0.4rem;">
+                                <button type="submit" class="btn btn-success btn-sm">Save Result</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4">No lab tests ordered for this visit yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

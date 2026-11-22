@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block title %}AYUNDA HEALTH CENTER | Quality Clinical Care{% endblock %}
+
+{% block content %}
+<section class="hospital-hero">
+    <div class="hero-content">
+        <span class="clinical-pill">Accredited Outpatient & Inpatient Facility</span>
+        <h1>Quality Healthcare You Can Trust at AYUNDA HEALTH CENTER</h1>
+        <p>Experience seamless outpatient consultations, specialist care, laboratory diagnostics, and coordinated treatment—all built around your comfort and recovery.</p>
+        <div class="hero-actions">
+            {% if user.is_authenticated %}
+                <a href="{% url 'dashboard_redirect' %}" class="btn btn-teal btn-lg">Open Clinical Dashboard</a>
+            {% else %}
+                <a href="{% url 'register_patient' %}" class="btn btn-teal btn-lg">Register as Patient</a>
+                <a href="{% url 'login' %}" class="btn btn-navy btn-lg">Patient & Staff Login</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="hero-triage-card">
+        <h3>Quick Patient Guide</h3>
+        <div class="triage-step">
+            <span class="step-num">1</span>
+            <div>
+                <strong>Register Patient Account</strong>
+                <p>Submit your biodata and emergency contact for admin verification.</p>
+            </div>
+        </div>
+        <div class="triage-step">
+            <span class="step-num">2</span>
+            <div>
+                <strong>Account Verification</strong>
+                <p>Once approved by our administrator, log in to access your patient portal.</p>
+            </div>
+        </div>
+        <div class="triage-step">
+            <span class="step-num">3</span>
+            <div>
+                <strong>Book & Consult</strong>
+                <p>Schedule appointments with our doctors and view your billing status.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="vitals-bar">
+    <div class="vital-item">
+        <span class="vital-number">24/7</span>
+        <span class="vital-label">Emergency & Triage</span>
+    </div>
+    <div class="vital-item">
+        <span class="vital-number">6+</span>
+        <span class="vital-label">Specialized Clinics</span>
+    </div>
+    <div class="vital-item">
+        <span class="vital-number">100%</span>
+        <span class="vital-label">Confidential Clinical Records</span>
+    </div>
+    <div class="vital-item">
+        <span class="vital-number">In-House</span>
+        <span class="vital-label">Pharmacy & Diagnostics</span>
+    </div>
+</section>
+
+<section class="section-block">
+    <div class="section-heading">
+        <span class="sub-label">Clinical Excellence</span>
+        <h2>Medical Departments & Care Units</h2>
+    </div>
+    <div class="dept-grid">
+        <div class="dept-card">
+            <div class="dept-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </div>
+            <h3>Outpatient & General Medicine</h3>
+            <p>Primary care consultations, chronic disease management (hypertension, diabetes), and preventive health checkups.</p>
+        </div>
+
+        <div class="dept-card">
+            <div class="dept-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            </div>
+            <h3>Maternal & Child Health (MCH)</h3>
+            <p>Comprehensive antenatal clinics, safe maternity care, postnatal follow-up, and childhood immunization schedules.</p>
+        </div>
+
+        <div class="dept-card">
+            <div class="dept-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg>
+            </div>
+            <h3>In-House Pharmacy</h3>
+            <p>Quality-assured medications dispensed directly by licensed pharmacists with accurate dosage instructions.</p>
+        </div>
+
+        <div class="dept-card">
+            <div class="dept-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6M10 3v5l-4 9a2 2 0 0 0 1.8 3h8.4a2 2 0 0 0 1.8-3l-4-9V3"/></svg>
+            </div>
+            <h3>Clinical Laboratory</h3>
+            <p>Rapid diagnostic blood work, urinalysis, malaria screening, and pathology testing for accurate treatment.</p>
+        </div>
+
+        <div class="dept-card">
+            <div class="dept-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </div>
+            <h3>24-Hour Emergency & Trauma</h3>
+            <p>Immediate medical stabilization, wound suturing, acute care, and ambulance referral coordination.</p>
+        </div>
+
+        <div class="dept-card">
+            <div class="dept-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <h3>Specialist Clinics</h3>
+            <p>Scheduled consultations in pediatrics, dentistry, optical care, and minor surgical procedures.</p>
+        </div>
+    </div>
+</section>
+
+<section class="two-col-grid">
+    <div class="card clinical-card">
+        <div class="card-header">
+            <h3>Clinic & Visiting Hours</h3>
+        </div>
+        <ul class="info-list">
+            <li><span>Outpatient Consultations</span> <strong>Mon – Sat: 8:00 AM – 6:00 PM</strong></li>
+            <li><span>Emergency & Casualty</span> <strong>Open 24 Hours Daily</strong></li>
+            <li><span>Pharmacy & Diagnostics</span> <strong>Mon – Sun: 7:30 AM – 9:00 PM</strong></li>
+            <li><span>Inpatient Visiting</span> <strong>1:00 PM – 2:00 PM & 4:30 PM – 6:00 PM</strong></li>
+        </ul>
+    </div>
+
+    <div class="card clinical-card">
+        <div class="card-header">
+            <h3>Emergency & Medical Staff Portal</h3>
+        </div>
+        <p style="margin-bottom: 1rem; color: #475569;">For urgent medical inquiries or ambulance dispatch, contact <strong>AYUNDA HEALTH CENTER</strong> directly at <strong>+254796943289</strong>. Doctors added by the hospital administrator can sign in below.</p>
+        {% if not user.is_authenticated %}
+            <a href="{% url 'login' %}" class="btn btn-navy">Authorized Staff Login</a>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

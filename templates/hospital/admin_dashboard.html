@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard | AYUNDA HEALTH CENTER{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card"><h3>Total Doctors</h3><p>{{ doctors.count }}</p></div>
+    <div class="stat-card"><h3>Total Patients</h3><p>{{ patients.count }}</p></div>
+    <div class="stat-card"><h3>Appointments</h3><p>{{ appointments.count }}</p></div>
+    <div class="stat-card"><h3>Unbilled Visits</h3><p>{{ unbilled_appointments.count }}</p></div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3>Medical Doctors Directory</h3>
+        <a href="{% url 'admin_add_doctor' %}" class="btn btn-teal btn-sm">+ Add New Doctor</a>
+    </div>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr><th>Doctor</th><th>Username</th><th>Specialization</th><th>License #</th><th>Fee</th></tr>
+            </thead>
+            <tbody>
+                {% for doc in doctors %}
+                <tr>
+                    <td>Dr. {{ doc.user.get_full_name|default:doc.user.username }}</td>
+                    <td>{{ doc.user.username }}</td>
+                    <td>{{ doc.specialization }}</td>
+                    <td>{{ doc.license_number }}</td>
+                    <td>KES {{ doc.consultation_fee }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5">No doctors added yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header"><h3>Patient Accounts & Approvals</h3></div>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr><th>Patient Name</th><th>Username</th><th>Phone</th><th>Status</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+                {% for pat in patients %}
+                <tr>
+                    <td>{{ pat.user.get_full_name|default:pat.user.username }}</td>
+                    <td>{{ pat.user.username }}</td>
+                    <td>{{ pat.user.phone_number }}</td>
+                    <td>
+                        {% if pat.is_approved %}<span class="badge badge-completed">Approved</span>
+                        {% else %}<span class="badge badge-pending">Pending</span>{% endif %}
+                    </td>
+                    <td>
+                        {% if not pat.is_approved %}<a href="{% url 'approve_patient' pat.id %}" class="btn btn-success btn-sm">Approve</a>
+                        {% else %}<span>Active</span>{% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5">No patients registered yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header"><h3>Confidential Patient Medical Records</h3></div>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr><th>Date</th><th>Patient</th><th>Doctor</th><th>Diagnosis</th><th>Prescription</th></tr>
+            </thead>
+            <tbody>
+                {% for rec in records %}
+                <tr>
+                    <td>{{ rec.created_at|date:"Y-m-d" }}</td>
+                    <td>{{ rec.appointment.patient }}</td>
+                    <td>{{ rec.appointment.doctor }}</td>
+                    <td>{{ rec.diagnosis }}</td>
+                    <td>{{ rec.prescription }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5">No medical records recorded yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header"><h3>Appointments Awaiting Invoice</h3></div>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr><th>Date</th><th>Patient</th><th>Doctor</th><th>Status</th><th>Fee</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+                {% for appt in unbilled_appointments %}
+                <tr>
+                    <td>{{ appt.appointment_date }}</td>
+                    <td>{{ appt.patient }}</td>
+                    <td>{{ appt.doctor }}</td>
+                    <td><span class="badge badge-{{ appt.status|lower }}">{{ appt.get_status_display }}</span></td>
+                    <td>KES {{ appt.doctor.consultation_fee }}</td>
+                    <td><a href="{% url 'admin_create_invoice' appt.id %}" class="btn btn-teal btn-sm">Create Invoice</a></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6">No approved or completed consultations awaiting an invoice.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3>Hospital Billing & Issued Invoices</h3>
+        <a href="{% url 'admin_create_invoice_select' %}" class="btn btn-teal btn-sm">+ Create New Invoice</a>
+    </div>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr><th>Bill #</th><th>Patient</th><th>Doctor</th><th>Total</th><th>Status</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+                {% for bill in bills %}
+                <tr>
+                    <td>#AHC-{{ bill.id|stringformat:"04d" }}</td>
+                    <td>{{ bill.appointment.patient }}</td>
+                    <td>{{ bill.appointment.doctor }}</td>
+                    <td><strong>KES {{ bill.total_amount }}</strong></td>
+                    <td>
+                        {% if bill.is_paid %}<span class="badge badge-completed">Paid</span>
+                        {% else %}<span class="badge badge-pending">Unpaid</span>{% endif %}
+                    </td>
+                    <td>
+                        {% if not bill.is_paid %}<a href="{% url 'mark_bill_paid' bill.id %}" class="btn btn-navy btn-sm">Mark Paid</a>
+                        {% else %}<span class="badge badge-completed">Cleared</span>{% endif %}
+                        <a href="{% url 'print_invoice' bill.id %}" class="btn btn-outline btn-sm">Print</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6">No invoices generated yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

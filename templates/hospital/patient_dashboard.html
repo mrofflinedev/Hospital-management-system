@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Patient Dashboard | AYUNDA HEALTH CENTER{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Patient Dashboard - {{ patient.user.get_full_name|default:patient.user.username }}</h2>
+        <a href="{% url 'book_appointment' %}" class="btn btn-teal">+ Book Appointment</a>
+    </div>
+    <p><strong>Blood Group:</strong> {{ patient.blood_group|default:"Not specified" }} | <strong>Emergency Contact:</strong> {{ patient.emergency_contact|default:"Not set" }}</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3>My Appointments</h3>
+    </div>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Doctor</th>
+                    <th>Date & Time</th>
+                    <th>Reported Symptoms</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appt in appointments %}
+                <tr>
+                    <td>{{ appt.doctor }}</td>
+                    <td>{{ appt.appointment_date }} at {{ appt.time_slot }}</td>
+                    <td>{{ appt.symptoms }}</td>
+                    <td><span class="badge badge-{{ appt.status|lower }}">{{ appt.get_status_display }}</span></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4">No appointments booked yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3>My Invoices & Billing</h3>
+    </div>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Bill #</th>
+                    <th>Doctor</th>
+                    <th>Consultation</th>
+                    <th>Medication</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Invoice</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bill in bills %}
+                <tr>
+                    <td>#{{ bill.id }}</td>
+                    <td>{{ bill.appointment.doctor }}</td>
+                    <td>KES {{ bill.consultation_fee }}</td>
+                    <td>KES {{ bill.medication_charges }}</td>
+                    <td><strong>KES {{ bill.total_amount }}</strong></td>
+                    <td>
+                        {% if bill.is_paid %}
+                            <span class="badge badge-completed">Paid</span>
+                        {% else %}
+                            <span class="badge badge-pending">Unpaid</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'print_invoice' bill.id %}" class="btn btn-navy btn-sm">View / Print</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7">No billing records found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

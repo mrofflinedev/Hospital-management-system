@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Pharmacy Inventory | AYUNDA HEALTH CENTER{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>AYUNDA HEALTH CENTER — Pharmacy & Stock Inventory</h2>
+    </div>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Medicine Name</th>
+                    <th>Category</th>
+                    <th>Unit Price</th>
+                    <th>In Stock</th>
+                    <th>Expiry Date</th>
+                    {% if user.role == 'ADMIN' or user.is_superuser %}
+                        <th>Quick Restock</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for med in medicines %}
+                <tr>
+                    <td><strong>{{ med.name }}</strong></td>
+                    <td>{{ med.category }}</td>
+                    <td>KES {{ med.unit_price }}</td>
+                    <td>
+                        {% if med.is_low_stock %}
+                            <span class="badge badge-cancelled">{{ med.stock_quantity }} (Low Stock)</span>
+                        {% else %}
+                            <span class="badge badge-completed">{{ med.stock_quantity }} units</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ med.expiry_date }}</td>
+                    {% if user.role == 'ADMIN' or user.is_superuser %}
+                    <td>
+                        <form method="post" action="{% url 'restock_medicine' med.id %}" style="display:flex; gap:0.4rem;">
+                            {% csrf_token %}
+                            <input type="number" name="added_qty" min="1" placeholder="+Qty" required style="width:80px; padding:0.3rem;">
+                            <button type="submit" class="btn btn-success btn-sm">Add</button>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% empty %}
+                <tr><td colspan="6">No medicines in stock yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if user.role == 'ADMIN' or user.is_superuser %}
+<div class="card form-card">
+    <div class="card-header">
+        <h3>Add New Medicine to Stock</h3>
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-teal">Save Medicine</button>
+    </form>
+</div>
+{% endif %}
+{% endblock %}

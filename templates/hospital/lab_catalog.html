@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Laboratory Catalog | AYUNDA HEALTH CENTER{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>AYUNDA HEALTH CENTER — Laboratory Tests & Pricing</h2>
+    </div>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr><th>Test Name</th><th>Description</th><th>Cost (KES)</th></tr>
+            </thead>
+            <tbody>
+                {% for test in tests %}
+                <tr>
+                    <td><strong>{{ test.name }}</strong></td>
+                    <td>{{ test.description|default:"—" }}</td>
+                    <td>KES {{ test.cost }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3">No laboratory tests configured yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if user.role == 'ADMIN' or user.is_superuser %}
+<div class="card form-card">
+    <div class="card-header"><h3>Add New Laboratory Test</h3></div>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-teal">Save Lab Test</button>
+    </form>
+</div>
+{% endif %}
+{% endblock %}

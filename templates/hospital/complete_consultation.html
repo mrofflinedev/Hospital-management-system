@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Consultation | AYUNDA HEALTH CENTER{% endblock %}
+
+{% block content %}
+<div class="card form-card">
+    <div class="card-header">
+        <h2>Consultation: {{ appointment.patient }}</h2>
+    </div>
+    <p><strong>Date:</strong> {{ appointment.appointment_date }} | <strong>Reported Symptoms:</strong> {{ appointment.symptoms }}</p>
+    <hr style="margin: 1rem 0; border: 0; border-top: 1px solid #eceff1;">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Save Record & Generate Bill</button>
+        <a href="{% url 'doctor_dashboard' %}" class="btn btn-danger">Back</a>
+    </form>
+</div>
+{% endblock %}

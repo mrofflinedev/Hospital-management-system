@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Dispense Medicine | AYUNDA HEALTH CENTER{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Dispense Medicine — {{ appointment.patient }}</h2>
+        <a href="{% url 'doctor_dashboard' %}" class="btn btn-navy btn-sm">Back to Dashboard</a>
+    </div>
+    {% if appointment.medical_record %}
+        <p><strong>Doctor's Prescription:</strong> {{ appointment.medical_record.prescription }}</p>
+    {% endif %}
+</div>
+
+<div class="card form-card">
+    <div class="card-header">
+        <h3>Issue Medicine from Stock</h3>
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-teal">Dispense & Update Bill</button>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3>Medicines Dispensed for This Visit</h3>
+    </div>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Medicine</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in dispensed_items %}
+                <tr>
+                    <td>{{ item.medicine.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>KES {{ item.medicine.unit_price }}</td>
+                    <td><strong>KES {{ item.subtotal }}</strong></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4">No medicines dispensed yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

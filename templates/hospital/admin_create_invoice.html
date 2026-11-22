@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Generate Invoice | AYUNDA HEALTH CENTER{% endblock %}
+
+{% block content %}
+<div class="card form-card">
+    <div class="card-header">
+        <h2>Generate Official Patient Invoice</h2>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if appointment %}
+            <input type="hidden" name="appointment_id" value="{{ appointment.id }}">
+            <p><strong>Patient:</strong> {{ appointment.patient }}</p>
+            <p><strong>Attending Doctor:</strong> {{ appointment.doctor }}</p>
+            <p><strong>Visit Date:</strong> {{ appointment.appointment_date }}</p>
+        {% else %}
+            <p>
+                <label for="appointment_id">Select Patient Appointment:</label>
+                <select name="appointment_id" id="appointment_id" required>
+                    <option value="">-- Choose an Appointment --</option>
+                    {% for appt in unbilled_list %}
+                        <option value="{{ appt.id }}">{{ appt.patient }} — {{ appt.doctor }} ({{ appt.appointment_date }})</option>
+                    {% endfor %}
+                </select>
+            </p>
+        {% endif %}
+
+        <hr style="margin: 1rem 0; border: 0; border-top: 1px solid #e2e8f0;">
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-teal">Generate & Stamp Invoice</button>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-danger">Cancel</a>
+    </form>
+</div>
+{% endblock %}

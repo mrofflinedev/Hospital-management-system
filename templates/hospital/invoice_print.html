@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Invoice #{{ bill.id }} | AYUNDA HEALTH CENTER{% endblock %}
+
+{% block content %}
+<div class="no-print" style="max-width: 800px; margin: 0 auto 1rem; display: flex; justify-content: space-between; align-items: center;">
+    <a href="{% url 'dashboard_redirect' %}" class="btn btn-outline btn-sm">&larr; Back to Dashboard</a>
+    <button onclick="window.print()" class="btn btn-teal">Print / Save as PDF</button>
+</div>
+
+<div class="invoice-sheet">
+    <!-- Hospital Header -->
+    <div class="invoice-header">
+        <div>
+            <h1 class="invoice-hospital-name">+ AYUNDA HEALTH CENTER</h1>
+            <p>Homa Bay Town, Homa Bay County, Kenya</p>
+            <p>Emergency & Inquiries: +254796943289</p>
+        </div>
+        <div class="invoice-meta">
+            <h2>OFFICIAL INVOICE</h2>
+            <p><strong>Invoice #:</strong> AHC-{{ bill.id|stringformat:"04d" }}</p>
+            <p><strong>Date Issued:</strong> {{ bill.generated_at|date:"M d, Y H:i" }}</p>
+            <div style="margin-top: 0.5rem;">
+                {% if bill.is_paid %}
+                    <span class="stamp-paid">PAID</span>
+                {% else %}
+                    <span class="stamp-unpaid">UNPAID</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient & Visit Details -->
+    <div class="invoice-parties">
+        <div>
+            <h4>Billed To (Patient):</h4>
+            <p><strong>{{ appointment.patient.user.get_full_name|default:appointment.patient.user.username }}</strong></p>
+            <p>Phone: {{ appointment.patient.user.phone_number|default:"N/A" }}</p>
+            <p>Address: {{ appointment.patient.address|default:"N/A" }}</p>
+        </div>
+        <div>
+            <h4>Consultation Details:</h4>
+            <p><strong>Attending Doctor:</strong> {{ appointment.doctor }}</p>
+            <p><strong>Visit Date:</strong> {{ appointment.appointment_date }}</p>
+            <p><strong>Appointment Ref:</strong> #{{ appointment.id }}</p>
+        </div>
+    </div>
+
+    <!-- Itemized Charges Table -->
+    <table class="invoice-table">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Qty</th>
+                <th>Unit Price (KES)</th>
+                <th style="text-align: right;">Amount (KES)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Medical Consultation Fee ({{ appointment.doctor.specialization }})</td>
+                <td>1</td>
+                <td>{{ bill.consultation_fee }}</td>
+                <td style="text-align: right;">{{ bill.consultation_fee }}</td>
+            </tr>
+
+            {% for item in dispensed_items %}
+            <tr>
+                <td>Pharmacy: {{ item.medicine.name }} ({{ item.medicine.category }})</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.medicine.unit_price }}</td>
+                <td style="text-align: right;">{{ item.subtotal }}</td>
+            </tr>
+            {% endfor %}
+
+            {% if other_med_charges > 0 %}
+            <tr>
+                <td>Additional Medication / Lab Charges</td>
+                <td>1</td>
+                <td>{{ other_med_charges }}</td>
+                <td style="text-align: right;">{{ other_med_charges }}</td>
+            </tr>
+            {% endif %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" style="text-align: right;"><strong>TOTAL AMOUNT DUE:</strong></td>
+                <td style="text-align: right;"><strong style="font-size: 1.15rem; color: #0b2545;">KES {{ bill.total_amount }}</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <!-- Official Hospital Stamp & Authorization -->
+    <div class="invoice-stamp-row">
+        <div class="signature-box">
+            <div class="sig-line"></div>
+            <p>Accounts & Billing Officer</p>
+        </div>
+
+        <div class="official-hospital-stamp">
+            <div class="stamp-inner">
+                <span class="stamp-org">AYUNDA HEALTH CENTER</span>
+                <span class="stamp-date">{{ stamp_date|date:"d M Y" }}</span>
+                <span class="stamp-msg">APPROVED</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Note -->
+    <div class="invoice-footer">
+        <p>Thank you for choosing <strong>AYUNDA HEALTH CENTER</strong>. Wishing you a speedy recovery.</p>
+        <p style="font-size: 0.8rem; color: #64748b; margin-top: 0.3rem;">This is an officially stamped hospital receipt.</p>
+    </div>
+</div>
+{% endblock %}
