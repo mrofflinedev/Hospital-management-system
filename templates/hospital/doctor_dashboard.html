@@ -47,8 +47,10 @@
                             <a href="{% url 'update_appointment_status' appt.id 'APPROVED' %}" class="btn btn-success btn-sm">Approve</a>
                             <a href="{% url 'update_appointment_status' appt.id 'CANCELLED' %}" class="btn btn-danger btn-sm">Cancel</a>
                         {% elif appt.status == 'APPROVED' %}
+                            <a href="{% url 'manage_appointment_labs' appt.id %}" class="btn btn-navy btn-sm">Lab Tests</a>
                             <a href="{% url 'complete_consultation' appt.id %}" class="btn btn-teal btn-sm">Consult & Prescribe</a>
                         {% elif appt.status == 'COMPLETED' %}
+                            <a href="{% url 'manage_appointment_labs' appt.id %}" class="btn btn-navy btn-sm">Lab Tests</a>
                             <a href="{% url 'dispense_medicine' appt.id %}" class="btn btn-success btn-sm">Dispense Meds</a>
                         {% else %}
                             <span>—</span>

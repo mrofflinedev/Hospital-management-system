@@ -9,7 +9,6 @@
 </div>
 
 <div class="invoice-sheet">
-    <!-- Hospital Header -->
     <div class="invoice-header">
         <div>
             <h1 class="invoice-hospital-name">+ AYUNDA HEALTH CENTER</h1>
@@ -30,7 +29,6 @@
         </div>
     </div>
 
-    <!-- Patient & Visit Details -->
     <div class="invoice-parties">
         <div>
             <h4>Billed To (Patient):</h4>
@@ -46,7 +44,6 @@
         </div>
     </div>
 
-    <!-- Itemized Charges Table -->
     <table class="invoice-table">
         <thead>
             <tr>
@@ -64,6 +61,15 @@
                 <td style="text-align: right;">{{ bill.consultation_fee }}</td>
             </tr>
 
+            {% for req in lab_requests %}
+            <tr>
+                <td>Laboratory Test: {{ req.test.name }}</td>
+                <td>1</td>
+                <td>{{ req.test.cost }}</td>
+                <td style="text-align: right;">{{ req.test.cost }}</td>
+            </tr>
+            {% endfor %}
+
             {% for item in dispensed_items %}
             <tr>
                 <td>Pharmacy: {{ item.medicine.name }} ({{ item.medicine.category }})</td>
@@ -75,7 +81,7 @@
 
             {% if other_med_charges > 0 %}
             <tr>
-                <td>Additional Medication / Lab Charges</td>
+                <td>Additional Clinical Charges</td>
                 <td>1</td>
                 <td>{{ other_med_charges }}</td>
                 <td style="text-align: right;">{{ other_med_charges }}</td>
@@ -90,7 +96,6 @@
         </tfoot>
     </table>
 
-    <!-- Official Hospital Stamp & Authorization -->
     <div class="invoice-stamp-row">
         <div class="signature-box">
             <div class="sig-line"></div>
@@ -106,7 +111,6 @@
         </div>
     </div>
 
-    <!-- Footer Note -->
     <div class="invoice-footer">
         <p>Thank you for choosing <strong>AYUNDA HEALTH CENTER</strong>. Wishing you a speedy recovery.</p>
         <p style="font-size: 0.8rem; color: #64748b; margin-top: 0.3rem;">This is an officially stamped hospital receipt.</p>

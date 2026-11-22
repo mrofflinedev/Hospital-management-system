@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}AYUNDA HEALTH CENTER{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
-    <link rel="stylesheet" href="{% static 'css/footer.css' %}?v=1">
+    <link rel="stylesheet" href="{% static 'css/footer.css' %}?v=2">
 </head>
 <body>
 
@@ -29,6 +29,7 @@
                     <li><a href="{% url 'dashboard_redirect' %}">My Portal</a></li>
                     {% if user.role == 'ADMIN' or user.role == 'DOCTOR' or user.is_superuser %}
                         <li><a href="{% url 'pharmacy_inventory' %}">Pharmacy Stock</a></li>
+                        <li><a href="{% url 'lab_catalog' %}">Lab Catalog</a></li>
                     {% endif %}
                     <li><span class="user-badge">{{ user.username }} &bull; {{ user.get_role_display }}</span></li>
                     <li><a href="{% url 'logout' %}" class="btn btn-outline btn-sm">Sign Out</a></li>
