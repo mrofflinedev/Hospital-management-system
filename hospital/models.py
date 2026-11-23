@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from accounts.models import DoctorProfile, PatientProfile
 
 
@@ -45,6 +46,9 @@ class Bill(models.Model):
     medication_charges = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     is_paid = models.BooleanField(default=False)
+    mpesa_receipt_number = models.CharField(max_length=50, blank=True, null=True)
+    mpesa_checkout_id = models.CharField(max_length=100, blank=True, null=True)
+    mpesa_phone = models.CharField(max_length=15, blank=True, null=True)
     generated_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
@@ -54,6 +58,8 @@ class Bill(models.Model):
     def __str__(self):
         status = "Paid" if self.is_paid else "Unpaid"
         return f"Bill #{self.id} - {self.appointment.patient} ({status})"
+
+
 class Medicine(models.Model):
     name = models.CharField(max_length=150, unique=True)
     category = models.CharField(max_length=100, help_text="e.g., Antibiotic, Painkiller, Antimalarial")
@@ -86,6 +92,8 @@ class DispensedMedicine(models.Model):
 
     def __str__(self):
         return f"{self.quantity}x {self.medicine.name} for {self.appointment.patient}"
+
+
 class LabTest(models.Model):
     name = models.CharField(max_length=150, unique=True)
     description = models.TextField(blank=True, null=True)
@@ -112,21 +120,52 @@ class LabRequest(models.Model):
 
     def __str__(self):
         return f"{self.test.name} for {self.appointment.patient} ({self.get_status_display()})"
-class Bill(models.Model):
-    appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE, related_name='bill')
-    consultation_fee = models.DecimalField(max_digits=10, decimal_places=2)
-    medication_charges = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    is_paid = models.BooleanField(default=False)
-    mpesa_receipt_number = models.CharField(max_length=50, blank=True, null=True)
-    mpesa_checkout_id = models.CharField(max_length=100, blank=True, null=True)
-    mpesa_phone = models.CharField(max_length=15, blank=True, null=True)
-    generated_at = models.DateTimeField(auto_now_add=True)
 
-    def save(self, *args, **kwargs):
-        self.total_amount = self.consultation_fee + self.medication_charges
-        super().save(*args, **kwargs)
+
+class Ward(models.Model):
+    class WardType(models.TextChoices):
+        GENERAL = 'GENERAL', 'General Ward'
+        MATERNITY = 'MATERNITY', 'Maternity Ward'
+        PEDIATRIC = 'PEDIATRIC', 'Pediatric Ward'
+        PRIVATE = 'PRIVATE', 'Private Room'
+
+    name = models.CharField(max_length=100, unique=True)
+    ward_type = models.CharField(max_length=20, choices=WardType.choices, default=WardType.GENERAL)
+    total_beds = models.PositiveIntegerField(default=10)
+    daily_rate = models.DecimalField(max_digits=10, decimal_places=2, help_text="Daily bed charge in KES")
+
+    @property
+    def occupied_beds(self):
+        return self.admissions.filter(is_discharged=False).count()
+
+    @property
+    def available_beds(self):
+        return max(0, self.total_beds - self.occupied_beds)
 
     def __str__(self):
-        status = "Paid" if self.is_paid else "Unpaid"
-        return f"Bill #{self.id} - {self.appointment.patient} ({status})"
+        return f"{self.name} ({self.get_ward_type_display()}) — {self.available_beds}/{self.total_beds} Beds Free (KES {self.daily_rate}/day)"
+
+
+class Admission(models.Model):
+    patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE, related_name='admissions')
+    ward = models.ForeignKey(Ward, on_delete=models.PROTECT, related_name='admissions')
+    admitting_doctor = models.ForeignKey(DoctorProfile, on_delete=models.SET_NULL, null=True)
+    bed_number = models.CharField(max_length=20)
+    reason = models.TextField()
+    admitted_at = models.DateTimeField(default=timezone.now)
+    discharged_at = models.DateTimeField(blank=True, null=True)
+    is_discharged = models.BooleanField(default=False)
+
+    @property
+    def days_admitted(self):
+        end_time = self.discharged_at or timezone.now()
+        delta = end_time.date() - self.admitted_at.date()
+        return max(1, delta.days)
+
+    @property
+    def total_ward_cost(self):
+        return self.days_admitted * self.ward.daily_rate
+
+    def __str__(self):
+        status = "Discharged" if self.is_discharged else f"Bed {self.bed_number}"
+        return f"{self.patient} — {self.ward.name} ({status})"

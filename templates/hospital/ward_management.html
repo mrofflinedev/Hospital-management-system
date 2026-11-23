@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}Wards & Bed Allocation | AYUNDA HEALTH CENTER{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>AYUNDA HEALTH CENTER — Inpatient Wards & Bed Capacity</h2>
+    </div>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Ward Name</th>
+                    <th>Category</th>
+                    <th>Total Beds</th>
+                    <th>Occupied</th>
+                    <th>Available</th>
+                    <th>Daily Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ward in wards %}
+                <tr>
+                    <td><strong>{{ ward.name }}</strong></td>
+                    <td>{{ ward.get_ward_type_display }}</td>
+                    <td>{{ ward.total_beds }}</td>
+                    <td>{{ ward.occupied_beds }}</td>
+                    <td>
+                        {% if ward.available_beds > 0 %}
+                            <span class="badge badge-completed">{{ ward.available_beds }} Free</span>
+                        {% else %}
+                            <span class="badge badge-cancelled">Full</span>
+                        {% endif %}
+                    </td>
+                    <td>KES {{ ward.daily_rate }} / day</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6">No wards configured yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3>Currently Admitted Inpatients</h3>
+    </div>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Patient</th>
+                    <th>Ward & Bed</th>
+                    <th>Admitting Doctor</th>
+                    <th>Admitted On</th>
+                    <th>Days & Accrued Cost</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for adm in active_admissions %}
+                <tr>
+                    <td><strong>{{ adm.patient }}</strong></td>
+                    <td>{{ adm.ward.name }} — <strong>Bed {{ adm.bed_number }}</strong></td>
+                    <td>{{ adm.admitting_doctor|default:"—" }}</td>
+                    <td>{{ adm.admitted_at|date:"M d, Y H:i" }}</td>
+                    <td>{{ adm.days_admitted }} day(s) — <strong>KES {{ adm.total_ward_cost }}</strong></td>
+                    <td>
+                        <a href="{% url 'discharge_patient' adm.id %}" class="btn btn-danger btn-sm">Discharge Patient</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6">No patients currently admitted.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="two-col-grid">
+    <div class="card clinical-card">
+        <div class="card-header">
+            <h3>Admit Patient to Bed</h3>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="admit_patient">
+            {{ admit_form.as_p }}
+            <button type="submit" class="btn btn-teal">Assign Bed & Admit</button>
+        </form>
+    </div>
+
+    {% if user.role == 'ADMIN' or user.is_superuser %}
+    <div class="card clinical-card">
+        <div class="card-header">
+            <h3>Add New Hospital Ward</h3>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_ward">
+            {{ ward_form.as_p }}
+            <button type="submit" class="btn btn-navy">Create Ward</button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

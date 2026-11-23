@@ -30,6 +30,7 @@
                     {% if user.role == 'ADMIN' or user.role == 'DOCTOR' or user.is_superuser %}
                         <li><a href="{% url 'pharmacy_inventory' %}">Pharmacy Stock</a></li>
                         <li><a href="{% url 'lab_catalog' %}">Lab Catalog</a></li>
+                        <li><a href="{% url 'ward_management' %}">Wards & Beds</a></li>
                     {% endif %}
                     <li><span class="user-badge">{{ user.username }} &bull; {{ user.get_role_display }}</span></li>
                     <li><a href="{% url 'logout' %}" class="btn btn-outline btn-sm">Sign Out</a></li>

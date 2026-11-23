@@ -7,8 +7,10 @@ from .models import (
     Bill,
     LabTest,
     LabRequest,
+    Ward,
+    Admission,
 )
-from accounts.models import DoctorProfile
+from accounts.models import DoctorProfile, PatientProfile
 
 
 class AppointmentForm(forms.ModelForm):
@@ -98,3 +100,36 @@ class LabResultForm(forms.ModelForm):
         widgets = {
             'result_notes': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Enter clinical laboratory findings...'}),
         }
+
+
+class WardForm(forms.ModelForm):
+    class Meta:
+        model = Ward
+        fields = ('name', 'ward_type', 'total_beds', 'daily_rate')
+
+
+class AdmissionForm(forms.ModelForm):
+    class Meta:
+        model = Admission
+        fields = ('patient', 'ward', 'admitting_doctor', 'bed_number', 'reason')
+        widgets = {
+            'reason': forms.Textarea(attrs={'rows': 2}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['patient'].queryset = PatientProfile.objects.filter(is_approved=True)
+        self.fields['admitting_doctor'].queryset = DoctorProfile.objects.filter(is_approved=True)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        ward = cleaned_data.get('ward')
+        bed_number = cleaned_data.get('bed_number')
+
+        if ward and ward.available_beds <= 0:
+            raise forms.ValidationError(f"{ward.name} is currently at full capacity (0 beds free).")
+
+        if ward and bed_number:
+            if Admission.objects.filter(ward=ward, bed_number=bed_number, is_discharged=False).exists():
+                raise forms.ValidationError(f"Bed {bed_number} in {ward.name} is already occupied.")
+        return cleaned_data

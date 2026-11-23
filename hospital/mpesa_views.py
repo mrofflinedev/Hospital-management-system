@@ -36,7 +36,7 @@ def initiate_mpesa_payment(request, bill_id):
                 bill.save()
                 messages.success(
                     request,
-                    f"M-Pesa STK Push sent to {formatted_phone}. Please enter your M-Pesa PIN on your phone, then refresh the invoice."
+                    f"M-Pesa STK Push sent to {formatted_phone}. Enter your M-Pesa PIN on your phone, then refresh this invoice."
                 )
                 return redirect('print_invoice', bill_id=bill.id)
             else:

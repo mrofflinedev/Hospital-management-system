@@ -40,3 +40,16 @@ class LabTestAdmin(admin.ModelAdmin):
 class LabRequestAdmin(admin.ModelAdmin):
     list_display = ('appointment', 'test', 'status', 'requested_at')
     list_filter = ('status',)
+
+from .models import Ward, Admission
+
+
+@admin.register(Ward)
+class WardAdmin(admin.ModelAdmin):
+    list_display = ('name', 'ward_type', 'total_beds', 'occupied_beds', 'available_beds', 'daily_rate')
+
+
+@admin.register(Admission)
+class AdmissionAdmin(admin.ModelAdmin):
+    list_display = ('patient', 'ward', 'bed_number', 'admitted_at', 'is_discharged')
+    list_filter = ('is_discharged', 'ward')

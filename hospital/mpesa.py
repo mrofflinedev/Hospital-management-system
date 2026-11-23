@@ -52,14 +52,14 @@ def trigger_stk_push(phone_number, amount, account_reference, transaction_desc):
         'BusinessShortCode': settings.MPESA_SHORTCODE,
         'Password': password,
         'Timestamp': timestamp,
-        'TransactionType': 'CustomerPayBillOnline',
+        'TransactionType': 'CustomerBuyGoodsOnline',
         'Amount': int(round(float(amount))),
         'PartyA': formatted_phone,
         'PartyB': settings.MPESA_SHORTCODE,
         'PhoneNumber': formatted_phone,
         'CallBackURL': settings.MPESA_CALLBACK_URL,
-        'AccountReference': account_reference,
-        'TransactionDesc': transaction_desc,
+        'AccountReference': AYUNDA_HEALTH_CENTER,
+        'TransactionDesc': HOSPITAL_BILL,
     }
 
     response = requests.post(stk_url, json=payload, headers=headers, timeout=20)

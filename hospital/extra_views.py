@@ -210,3 +210,37 @@ def manage_appointment_labs(request, appointment_id):
         'lab_requests': lab_requests,
         'req_form': LabRequestForm(),
     })
+@login_required
+def dispense_medicine(request, appointment_id):
+    if request.user.role not in [User.Role.ADMIN, User.Role.DOCTOR] and not request.user.is_superuser:
+        return redirect('dashboard_redirect')
+
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+    dispensed_items = appointment.dispensed_medicines.all()
+
+    if request.method == 'POST':
+        form = DispenseMedicineForm(request.POST)
+        if form.is_valid():
+            item = form.save(commit=False)
+            item.appointment = appointment
+            item.save()
+
+            med = item.medicine
+            med.stock_quantity -= item.quantity
+            med.save()
+
+            if hasattr(appointment, 'bill'):
+                bill = appointment.bill
+                bill.medication_charges += item.subtotal
+                bill.save()
+
+            messages.success(request, f'Dispensed {item.quantity}x {med.name}.')
+            return redirect('dispense_medicine', appointment_id=appointment.id)
+    else:
+        form = DispenseMedicineForm()
+
+    return render(request, 'hospital/dispense_medicine.html', {
+        'appointment': appointment,
+        'dispensed_items': dispensed_items,
+        'form': form,
+    })

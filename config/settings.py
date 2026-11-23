@@ -152,8 +152,8 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard_redirect'
 # Safaricom M-Pesa Daraja API Settings (Sandbox Defaults)
 MPESA_ENVIRONMENT = 'sandbox'  # Change to 'production' when going live
-MPESA_CONSUMER_KEY = 'YOUR_DARAJA_CONSUMER_KEY'
-MPESA_CONSUMER_SECRET = 'YOUR_DARAJA_CONSUMER_SECRET'
+MPESA_CONSUMER_KEY = 'b4GIM8gnlBgEGg3EyzUGsCpjymViakuIm5D9inkzsH5jIk6v'
+MPESA_CONSUMER_SECRET = 'xDcsSzTceOSZubRW9Y8mQGWllaeHfat643Ye14ajtXSkEJxuT5W53cY4QKIlQLa4'
 MPESA_SHORTCODE = '174379'  # Default Safaricom Sandbox Paybill
 MPESA_PASSKEY = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'
 MPESA_CALLBACK_URL = 'https://your-ngrok-or-domain.com'
